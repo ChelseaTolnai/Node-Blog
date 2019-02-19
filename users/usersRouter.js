@@ -20,7 +20,7 @@ usersRouter.get('/:id', async (req, res, next) => {
         if (user) {
             res.status(200).json(user);
         } else {
-            next({code: 404, action: 'getting', subject: 'user by specified ID.'});
+            next({code: 404, action: 'getting', subject: 'user. User with specified ID does not exist'});
         }
     } catch (err) {
         next({code: 500, action: 'getting', subject: 'user'});
@@ -40,6 +40,21 @@ usersRouter.post('/', nameUpperCase, async (req, res, next) => {
         }
     } catch (err) {
         next({code: 500, action: 'adding', subject: 'user'});
+    }
+});
+
+usersRouter.delete('/:id', async (req, res, next) => {
+    const userID = req.params.id;
+    try {
+        const user = await Users.getById(userID);
+        if (user) {
+            await Users.remove(userID);
+            res.status(200).json({...user, deleted: 'successful'});
+        } else {
+            next({code: 404, action: 'deleting', subject: 'user. User with specified ID does not exist'});
+        }
+    } catch (error) {
+        next({code: 500, action: 'deleting', subject: 'user'});
     }
 });
 
