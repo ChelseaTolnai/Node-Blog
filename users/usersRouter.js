@@ -1,6 +1,7 @@
 const express = require('express');
 
 const Users = require('./userDb');
+const Posts = require('../posts/postDb');
 
 const usersRouter = express.Router();
 
@@ -24,6 +25,26 @@ usersRouter.get('/:id', async (req, res, next) => {
         }
     } catch (err) {
         next({code: 500, action: 'getting', subject: 'user'});
+    }
+});
+
+usersRouter.get('/:id/posts', async (req, res, next) => {
+    const userID = req.params.id;
+    try {
+        const user = await Users.getById(userID);
+        if (user) {
+            const posts = await Posts.get();
+            const userPosts = posts.filter(post => post.user_id == userID)
+            if (userPosts.length > 0) {
+                res.status(200).json(userPosts);
+            } else {
+                next({code: 404, action: 'getting', subject: 'posts. User with specified ID does not have any posts'});
+            }
+        } else {
+            next({code: 404, action: 'getting', subject: 'posts. User with specified ID does not exist'});
+        }
+    } catch (err) {
+        next({code: 500, action: 'getting', subject: 'posts'});
     }
 });
 
