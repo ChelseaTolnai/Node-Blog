@@ -2,7 +2,8 @@ const express = require('express');
 const helmet = require('helmet');
 const path = require('path');
 
-const usersRouter = require('./users/usersRouter')
+const usersRouter = require('./users/usersRouter');
+const postsRouter = require('./posts/postsRouter')
 
 const server = express();
 
@@ -10,6 +11,7 @@ server.use(express.json());
 server.use(helmet());
 
 server.use('/users', usersRouter);
+server.use('/posts', postsRouter);
 
 server.get('*', async (req, res, next) => {
     const filePath = path.join(__dirname);
