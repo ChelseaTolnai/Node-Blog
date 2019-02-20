@@ -27,6 +27,24 @@ postsRouter.get('/:id', async (req, res, next) => {
     }
 });
 
+postsRouter.post('/', postCheck, async (req, res, next) => {
+    try {
+        const post = await Posts.insert(req.body);
+        res.status(201).json(post);
+    } catch (err) {
+        next({code: 500, action: 'adding', subject: 'post'});
+    }
+});
+
+function postCheck(req, res, next) {
+    if (!req.body.text || !req.body.user_id) {
+        next({code: 400, action: 'updating', subject: 'post. Post text and user_id is required'})
+        return;
+    } else {
+        next();
+    }
+};
+
 postsRouter.use(errorHandlerPost);
 
 function errorHandlerPost(err, req, res, next) {

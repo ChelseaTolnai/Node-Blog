@@ -64,6 +64,21 @@ usersRouter.post('/', nameUpperCase, async (req, res, next) => {
     }
 });
 
+usersRouter.post('/:id/posts', postCheck, async (req, res, next) => {
+    const userID = req.params.id;
+    try {
+        const user = await Users.getById(userID);
+        if (user) {
+            const post = await Posts.insert({...req.body, user_id: userID});
+            res.status(201).json(post);
+        } else {
+            next({code: 404, action: 'adding', subject: 'post. User with specified ID does not exist'});
+        }
+    } catch (err) {
+        next({code: 500, action: 'adding', subject: 'post'});
+    }
+});
+
 usersRouter.delete('/:id', async (req, res, next) => {
     const userID = req.params.id;
     try {
@@ -108,7 +123,15 @@ function nameUpperCase(req, res, next) {
         return;
     } else {
         userNameCap = req.body.name.toUpperCase();
-        console.log(userNameCap);
+        next();
+    }
+};
+
+function postCheck(req, res, next) {
+    if (!req.body.text) {
+        next({code: 400, action: 'updating', subject: 'post. Post text is required'})
+        return;
+    } else {
         next();
     }
 };
