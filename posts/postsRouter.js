@@ -52,6 +52,22 @@ postsRouter.delete('/:id', async (req, res, next) => {
     }
 });
 
+postsRouter.put('/:id', postCheck, async (req, res, next) => {
+    const postID = req.params.id;
+    try {
+        const post = await Posts.getById(postID);
+        if (post) {
+            await Posts.update(postID, {...post, text: req.body.text});
+            const updatedPost = await Posts.getById(postID);
+            res.status(200).json({...updatedPost, updated: 'successful'});
+        } else {
+            next({code: 404, action: 'updating', subject: 'post. Post with specified ID does not exist'});
+        }
+    } catch (error) {
+        next({code: 500, action: 'updating', subject: 'post'});
+    }
+});
+
 function postCheck(req, res, next) {
     if (!req.body.text || !req.body.user_id) {
         next({code: 400, action: 'updating', subject: 'post. Post text and user_id is required'})
